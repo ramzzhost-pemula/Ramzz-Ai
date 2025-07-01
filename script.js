@@ -17,7 +17,7 @@ document.addEventListener('DOMContentLoaded', function() {
     
     // Variables
     let userName = '';
-    const aiName = 'Rafxz-Ai';
+    const aiName = 'Ramzz-Ai';
     const aiAvatar = 'https://i.imgur.com/JnQJxZc.png';
     const apiUrl = 'https://api.siputzx.my.id/api/ai/gemini-pro?content=';
     let chatHistory = [];
@@ -49,7 +49,7 @@ document.addEventListener('DOMContentLoaded', function() {
         
         // Show greeting message
         setTimeout(() => {
-            addMessage('ai', `${aiName}: Halo ${userName}! Saya ${aiName}, AI yang dikembangkan oleh Rafxz. Ada yang bisa saya bantu?`);
+            addMessage('ai', `${aiName}: Halo ${userName}! Saya ${aiName}, AI yang dikembangkan oleh Ramzz. Ada yang bisa saya bantu?`);
         }, 500);
     });
     
