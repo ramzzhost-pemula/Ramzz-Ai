@@ -3,361 +3,1088 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Login Google dengan Firebase</title>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <title>Ramzz - Asisten AI Cerdas</title>
+    
+    <!-- Font Awesome untuk Ikon -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+    
+    <!-- Google Fonts: Inter -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700&family=Fira+Code&display=swap" rel="stylesheet">
+    
+    <!-- Marked.js untuk merender Markdown -->
+    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+
     <style>
+        /* CSS Variables untuk Theming */
+        :root {
+            --font-primary: 'Inter', sans-serif;
+            --font-code: 'Fira Code', monospace;
+
+            /* Default: Dark/AMOLED Theme */
+            --bg-color: #000000;
+            --surface-color: #121212;
+            --primary-color: #007AFF;
+            --text-color: #EAEAEA;
+            --text-muted-color: #888888;
+            --user-bubble-color: #1C2D46;
+            --ai-bubble-color: #262626;
+            --border-color: #2D2D2D;
+            --input-bg-color: #1c1c1c;
+            --shadow-color: rgba(0, 0, 0, 0.5);
+            --icon-color: #b0b0b0;
+            --icon-hover-color: #ffffff;
+        }
+
+        /* Light Theme */
+        body.light-theme {
+            --bg-color: #F0F2F5;
+            --surface-color: #FFFFFF;
+            --primary-color: #007AFF;
+            --text-color: #050505;
+            --text-muted-color: #65676B;
+            --user-bubble-color: #E7F3FF;
+            --ai-bubble-color: #F0F0F0;
+            --border-color: #CED0D4;
+            --input-bg-color: #f0f2f5;
+            --shadow-color: rgba(0, 0, 0, 0.1);
+            --icon-color: #65676B;
+            --icon-hover-color: #050505;
+        }
+
         * {
+            box-sizing: border-box;
             margin: 0;
             padding: 0;
-            box-sizing: border-box;
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
         }
-        
-        body {
-            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
-            min-height: 100vh;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            padding: 20px;
-        }
-        
-        .container {
-            background-color: white;
-            border-radius: 12px;
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
-            width: 100%;
-            max-width: 450px;
-            padding: 30px;
-            text-align: center;
-            position: relative;
+
+        html, body {
+            height: 100%;
+            font-family: var(--font-primary);
+            background-color: var(--bg-color);
+            color: var(--text-color);
             overflow: hidden;
+            transition: background-color 0.3s, color 0.3s;
         }
-        
-        .firebase-badge {
-            position: absolute;
-            top: 15px;
-            right: 15px;
-            background: #FFA000;
-            color: white;
-            font-size: 10px;
-            padding: 4px 8px;
-            border-radius: 4px;
-            font-weight: bold;
+
+        body {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 16px;
         }
-        
-        h1 {
-            color: #4285F4;
-            margin-bottom: 10px;
-            font-size: 28px;
+
+        .chat-container {
+            width: 100%;
+            max-width: 850px;
+            height: 95vh;
+            background-color: var(--surface-color);
+            border-radius: 16px;
+            box-shadow: 0 10px 40px var(--shadow-color);
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+            border: 1px solid var(--border-color);
+            transition: background-color 0.3s, border-color 0.3s;
         }
-        
-        p {
-            color: #5f6368;
-            margin-bottom: 25px;
-            line-height: 1.5;
+
+        .chat-header {
+            padding: 12px 20px;
+            border-bottom: 1px solid var(--border-color);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-shrink: 0;
         }
-        
-        .login-btn {
+
+        .chat-header .title-group h1 {
+            font-size: 1.1rem;
+            font-weight: 700;
+        }
+
+        .chat-header .title-group p {
+            font-size: 0.75rem;
+            color: var(--text-muted-color);
+        }
+
+        .header-controls {
             display: flex;
             align-items: center;
-            justify-content: center;
-            background-color: #4285F4;
-            color: white;
+            gap: 8px;
+        }
+
+        .control-btn {
+            background: none;
             border: none;
-            border-radius: 4px;
-            padding: 12px 20px;
-            font-size: 16px;
-            font-weight: 500;
+            color: var(--icon-color);
+            font-size: 1.1rem;
             cursor: pointer;
-            transition: all 0.3s;
-            margin: 0 auto 20px;
-            width: 100%;
-            max-width: 240px;
+            padding: 8px;
+            border-radius: 50%;
+            transition: color 0.2s, background-color 0.2s;
         }
-        
-        .login-btn:hover {
-            background-color: #357ae8;
-            box-shadow: 0 4px 15px rgba(66, 133, 244, 0.4);
-            transform: translateY(-2px);
+
+        .control-btn:hover {
+            color: var(--icon-hover-color);
+            background-color: rgba(255, 255, 255, 0.1);
         }
-        
-        .login-btn img {
-            width: 20px;
-            height: 20px;
-            margin-right: 12px;
-            background-color: white;
-            padding: 4px;
-            border-radius: 3px;
+
+        body.light-theme .control-btn:hover {
+            background-color: rgba(0, 0, 0, 0.05);
         }
-        
-        .logout-btn {
-            background-color: #dc3545;
-            color: white;
-            border: none;
-            border-radius: 4px;
-            padding: 10px 20px;
-            font-size: 14px;
-            cursor: pointer;
-            transition: all 0.3s;
-            margin-top: 15px;
-        }
-        
-        .logout-btn:hover {
-            background-color: #c82333;
-            transform: translateY(-2px);
-            box-shadow: 0 4px 10px rgba(220, 53, 69, 0.4);
-        }
-        
-        .user-info {
-            margin-top: 25px;
+
+        .chat-messages {
+            flex-grow: 1;
             padding: 20px;
-            background-color: #f8f9fa;
-            border-radius: 8px;
-            text-align: center;
-            animation: fadeIn 0.5s ease;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
         }
-        
-        .user-info img {
-            width: 80px;
-            height: 80px;
-            border-radius: 50%;
-            margin-bottom: 15px;
-            border: 3px solid #4285F4;
-            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+
+        .chat-messages::-webkit-scrollbar {
+            width: 8px;
         }
-        
-        .user-info h3 {
-            color: #202124;
-            margin-bottom: 8px;
+
+        .chat-messages::-webkit-scrollbar-track {
+            background: transparent;
         }
-        
-        .user-info p {
-            color: #5f6368;
-            margin-bottom: 5px;
+
+        .chat-messages::-webkit-scrollbar-thumb {
+            background-color: var(--border-color);
+            border-radius: 10px;
         }
-        
-        .status {
-            margin: 20px 0;
-            padding: 12px;
-            border-radius: 6px;
-            font-weight: 500;
-            animation: fadeIn 0.5s ease;
-        }
-        
-        .status.connected {
-            background-color: #d4edda;
-            color: #155724;
-            border: 1px solid #c3e6cb;
-        }
-        
-        .status.disconnected {
-            background-color: #f8d7da;
-            color: #721c24;
-            border: 1px solid #f5c6cb;
-        }
-        
-        .hidden {
-            display: none;
-        }
-        
-        .firebase-logo {
-            width: 120px;
-            margin-bottom: 20px;
-        }
-        
-        .footer {
-            margin-top: 30px;
-            font-size: 14px;
-            color: #5f6368;
-        }
-        
-        .loading {
-            display: none;
-            margin: 10px auto;
-            border: 4px solid #f3f3f3;
-            border-top: 4px solid #4285F4;
-            border-radius: 50%;
-            width: 30px;
-            height: 30px;
-            animation: spin 1s linear infinite;
-        }
-        
-        @keyframes spin {
-            0% { transform: rotate(0deg); }
-            100% { transform: rotate(360deg); }
+
+        .message {
+            max-width: 85%;
+            padding: 12px 16px;
+            border-radius: 18px;
+            line-height: 1.6;
+            word-wrap: break-word;
+            animation: fadeIn 0.4s ease-out;
         }
         
         @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(10px); }
+            from { opacity: 0; transform: translateY(15px); }
             to { opacity: 1; transform: translateY(0); }
         }
-        
-        .instructions {
-            background-color: #e8f4f8;
-            padding: 15px;
-            border-radius: 8px;
-            margin: 20px 0;
-            text-align: left;
-            font-size: 14px;
+
+        .message.user {
+            background-color: var(--user-bubble-color);
+            color: var(--text-color);
+            align-self: flex-end;
+            border-bottom-right-radius: 4px;
+        }
+
+        .message.ai {
+            background-color: var(--ai-bubble-color);
+            align-self: flex-start;
+            border-bottom-left-radius: 4px;
         }
         
-        .instructions h3 {
-            color: #4285F4;
-            margin-bottom: 10px;
+        .message.reasoning {
+            background-color: transparent;
+            border: 1px dashed var(--primary-color);
+            align-self: center;
+            width: 100%;
+            max-width: 100%;
+            font-size: 0.9em;
+            color: var(--text-muted-color);
         }
         
-        .instructions ol {
-            padding-left: 20px;
-        }
-        
-        .instructions li {
+        .message.reasoning strong {
+            color: var(--primary-color);
+            display: block;
             margin-bottom: 8px;
         }
+
+        .message.typing {
+            color: var(--text-muted-color);
+            font-style: italic;
+        }
+        
+        /* Styling untuk blok kode */
+        .message.ai pre {
+            background-color: var(--bg-color);
+            color: #f8f8f2;
+            padding: 16px;
+            border-radius: 8px;
+            overflow-x: auto;
+            margin: 12px 0;
+            font-family: var(--font-code);
+            font-size: 0.9em;
+            position: relative;
+            border: 1px solid var(--border-color);
+        }
+        
+        .copy-btn {
+            position: absolute;
+            top: 8px;
+            right: 8px;
+            background-color: #444;
+            color: #fff;
+            border: none;
+            padding: 4px 8px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 0.8em;
+            opacity: 0;
+            transition: opacity 0.2s;
+        }
+
+        pre:hover .copy-btn {
+            opacity: 1;
+        }
+
+        .copy-btn:hover {
+            background-color: #555;
+        }
+
+        .message.ai code:not(pre > code) {
+            font-family: var(--font-code);
+            background-color: rgba(0,0,0,0.2);
+            padding: 2px 5px;
+            border-radius: 4px;
+            font-size: 0.9em;
+        }
+
+        .chat-input-area {
+            padding: 16px;
+            border-top: 1px solid var(--border-color);
+            background-color:极狐 var(--surface-color);
+            flex-shrink: 0;
+        }
+
+        .chat-input-form {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            background-color: var(--input-bg-color);
+            border-radius: 25px;
+            padding: 5px;
+            border: 1px solid var(--border-color);
+        }
+        
+        .chat-input-form:focus-within {
+             border-color: var(--primary-color);
+        }
+
+        #chat-input {
+            flex-grow: 1;
+            border: none;
+            background-color: transparent;
+            color: var(--text-color);
+            font-size: 1rem;
+            outline: none;
+            padding: 10px;
+            font-family: var(--font-primary);
+        }
+        
+        .input-btn {
+            background: none;
+            border: none;
+            color: var(--icon-color);
+            font-size: 1.2rem;
+            cursor: pointer;
+            padding: 8px;
+            border-radius: 50%;
+            transition: color 0.2s, background-color 0.2s;
+        }
+        
+        .input-btn:hover {
+            color: var(--icon-hover-color);
+        }
+
+        #send-button {
+            background-color: var(--primary-color);
+            color: white;
+            font-size: 1rem;
+        }
+
+        #send-button:hover:not(:disabled) {
+            filter: brightness(1.1);
+        }
+
+        #send-button:disabled {
+            background-color: #555;
+            cursor: not-allowed;
+        }
+        
+        #file-upload-input {
+            display: none;
+        }
+        
+        #file-info {
+            font-size: 0.8em;
+            margin-top: 8px;
+            text-align: center;
+            color: var(--text-muted-color);
+            height: 1em;
+        }
+        
+        .share-modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+            z-index: 1000;
+            justify-content: center;
+            align-items: center;
+        }
+        
+        .share-modal-content {
+            background-color: var(--surface-color);
+            border-radius: 16px;
+            width: 90%;
+            max-width: 500px;
+            padding: 25px;
+            box-shadow: 0 5px 30px rgba(0, 0, 0, 0.3);
+        }
+        
+        .share-modal h2 {
+            font-size: 20px;
+            margin-bottom: 15px;
+            color: var(--text-color);
+        }
+        
+        .share-modal p {
+            color: var(--text-muted-color);
+            margin-bottom: 20px;
+            line-height: 1.5;
+        }
+        
+        .share-links {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            margin-bottom: 20px;
+        }
+        
+        .share-link-item {
+            display: flex;
+            align-items: center;
+            background-color: var(--input-bg-color);
+            border-radius: 12px;
+            padding: 12px;
+            gap: 10px;
+        }
+        
+        .share-link-item input {
+            flex: 1;
+            background: none;
+            border: none;
+            color: var(--text-color);
+            font-family: var(--font-primary);
+            font-size: 14px;
+            outline: none;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+        
+        .share-link-item button {
+            background: none;
+            border: none;
+            color: var(--primary-color);
+            font-weight: 500;
+            cursor: pointer;
+            padding: 5px 极狐10px;
+        }
+        
+        .share-platforms {
+            display: flex;
+            gap: 15px;
+        }
+        
+        .share-platform {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 15px;
+            border-radius: 12px;
+            background-color: var(--input-bg极狐-color);
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        
+        .share-platform:hover {
+            transform: translateY(-3px);
+            background-color: rgba(0, 122, 255, 0.1);
+        }
+        
+        .share-platform i {
+            font-size: 24px;
+            margin-bottom: 8px;
+        }
+        
+        .share-platform.whatsapp {
+            color: #25D366;
+        }
+        
+        .share-platform.telegram {
+            color: #0088CC;
+        }
+        
+        .share-platform.copy {
+            color: var(--primary-color);
+        }
+        
+        .close-modal {
+            position: absolute;
+            top: 15px;
+            right: 15px;
+            background: none;
+            border: none;
+            color: var(--text-muted-color);
+            font-size: 20px;
+            cursor: pointer;
+        }
     </style>
-    <!-- Firebase App (wajib) -->
-    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
-    <!-- Firebase Authentication -->
-    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
 </head>
-<body>
-    <div class="container">
-        <div class="firebase-badge">FIREBASE</div>
-        <img src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCA1MTIgNTEyIj48cGF0aCBmaWxsPSIjZmZiODAwIiBkPSJNNDQ2LjcgOTguNmwtNjcuNiAzMTIuMWMtNS4xIDIyLjUtMjQuNiAzOC01Mi40IDM4SDI0MC45Yy0xOC43IDAtMzUtMTEuOS00MC44LTI5LjRsLTQ1LjEtMTQ3LjdoLTE0Yy04LjcgMC0xNi41IDUtMTkuOCAxMi43bC0yLjUgNi44LTE4LjEgNjUuM2MtMi44IDEwLjEtNS41IDIwLjUtOC41IDI2LjYtNi45IDE0LjItMjEuNCAyMy41LTM3LjQgMjMuNUg0MHYzMi4zaDYzLjVjMzUuNyAwIDY2LjUtMjMuNSA3Ni40LTU3LjhsNjUuNy0yMzUuOGM0LjQtMTUuNyAxOC4zLTI2LjQgMzQuNS0yNi40aDMwLjJjMTQuOSAwIDI4LjQgOS40IDMzLjQgMjMuNWw0Ni41IDEzOC44IDM2LjItMTM3LjVDNDE5LjMgMTEyIDQ0MS45IDk2IDQ2Ni4zIDk2aDE4LjR2MzIuM2gtMTguNGMtOC40IDAtMTUuNSA1LjEtMTguNCAxMi43eiIvPjwvc3ZnPg==" alt="Firebase Logo" class="firebase-logo">
-        
-        <h1>Login dengan Google</h1>
-        <p>Gunakan akun Google Anda untuk masuk ke aplikasi ini. Data Anda akan diamankan dengan Firebase Authentication.</p>
-        
-        <div class="instructions">
-            <h3><i class="fas fa-info-circle"></i> Cara Setup:</h3>
-            <ol>
-                <li>Buka Firebase Console dan aktifkan Google Authentication</li>
-                <li>Tambahkan domain Anda ke Authorized domains</li>
-                <li>Klik tombol di bawah untuk login</li>
-            </ol>
+<body class="dark-theme">
+    <div class="chat-container">
+        <header class="chat-header">
+            <div class极狐="title-group">
+                <h1>Ramzz</h1>
+                <p>Asisten AI Cerdas Indonesia</p>
+            </div>
+            <div class="header-controls">
+                <button class="control-btn" id="share-chat-btn" title="Bagikan Chat"><i class="fas fa-share-alt"></i></button>
+                <button class="control-btn" id="new-chat-btn" title="Mulai Chat Baru"><i class="fas fa-plus-square"></i></button>
+                <button class="control-btn" id="delete-chat-btn" title="Hapus Riwayat Chat"><i class="fas fa-trash-alt"></i></button>
+                <button class="control-btn" id="theme-toggle-btn" title="Ganti Tema"><i class="fas fa-sun"></i></button>
+                <button class="control-btn" id="profile-btn" title="Profil Saya"><i class="fas fa-user-circle"></i></button>
+            </div>
+        </header>
+
+        <div class="chat-messages" id="chat-messages">
+            <!-- Pesan akan dimuat oleh JavaScript -->
         </div>
-        
-        <div id="login-section">
-            <button id="google-login" class="login-btn">
-                <img src="data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMTgiIGhlaWdodD0iMTgiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+PGcgZmlsbD0ibm9uZSIgZmlsbC1ydWxlPSJldmVub2RkIj48cGF0aCBkPSJNMTcuNiA5LjJsLS4xLTEuOEg5djMuNGg0LjhDMTMuNiAxMiAxMyAxMyAxMiAxMy42djIuMmgzYTguOCA4LjggMCAwIDAgMi42LTYuNnoiIGZpbGw9IiM0Mjg1RjQiIGZpbGwtcnVsZT0ibm9uemVybyIvPjxwYXRoIGQ9Ik05IDE4YzIuNCAwIDQuNS0uOCA2LTIuMmwtMy0yLjJhNS40IDUuNCAwIDAgMS04LTIuOUgxVjEzYTkgOSAwIDAgMCA4IDV6IiBmaWxsPSIjMzRBODUzIiBmaWxsLXJ1bGU9Im5vbnplcm8iLz48cGF0aCBkPSJNNCAxMC43YTUuNCA1LjQgMCAwIDEgMC0zLjRWNUgxYTkgOSAwIDAgMCAwIDhsMy0yLjN6IiBmaWxsPSIjRkJCQzU2IiBmaWxsLXJ1bGU9Im5vbnplcm8iLz48cGF0aCBkPSJNOSAzLjZjMS4zIDAgMi41LjQgMy40IDEuM0wxNSAyLjNBOSA5IDAgMCAwIDEgNWwzIDIuNGE1LjQgNS40IDAgMCAxIDUtMy43eiIgZmlsbD0iI0VBNDMzNSIgZmlsbC1ydWxlPSJub256ZXJvIi8+PHBhdGggZD0iTTAgMGgxOHYxOEgweiIvPjwvZz48L3N2Zz4=" alt="Google Logo">
-                Masuk dengan Google
-            </button>
-            <div id="loading" class="loading"></div>
-        </div>
-        
-        <div id="status" class="status disconnected">Anda belum login</div>
-        
-        <div id="user-info" class="user-info hidden">
-            <img id="user-photo" src="" alt="Foto Profil">
-            <h3 id="user-name"></h3>
-            <p id="user-email"></p>
-            <button id="logout-btn" class="logout-btn"><i class="fas fa-sign-out-alt"></i> Keluar</button>
-        </div>
-        
-        <div class="footer">
-            <p><i class="fas fa-shield-alt"></i> Dibangun dengan Firebase Authentication</p>
+
+        <div class="chat-input-area">
+            <form class="chat-input-form" id="chat-form">
+                <button type="button" class="input-btn" id="upload-btn" title="Upload File"><i class="fas fa-paperclip"></i></button>
+                <input type="file" id="file-upload-input">
+                
+                <input type="text" id="chat-input" placeholder="Ketik pesan Anda..." autocomplete="off">
+                
+                <button type="submit" class="input-btn" data-action="think" title="Think (Penalaran)"><i class="fas fa-brain"></i></button>
+                <button type="submit" class="input-btn" data-action="search" title="Search (Web)"><i class="fas fa-globe"></i></button>
+                <button type="submit" class="input-btn" id="send-button" data-action="send" title="Kirim"><i class="fas fa-paper-plane"></i></button>
+            </form>
+            <div id="file-info"></div>
         </div>
     </div>
-
+    
+    <div class="share-modal" id="share-modal">
+        <div class="share-modal-content">
+            <button class="close-modal" id="close-modal"><i class="fas fa-times"></i></button>
+            <h2>Berbagi Chat</h2>
+            <p>Pilih platform untuk berbagi riwayat chat Anda. Anda dapat berbagi dengan teman atau menyimpannya untuk referensi masa depan.</p>
+            
+            <div class="share-links">
+                <div class="share-link-item">
+                    <i class="fas fa-link"></i>
+                    <input type="text" id="share-link" readonly value="">
+                    <button id="copy-share-link">Salin</button>
+                </div>
+            </div>
+            
+            <div class="share-platforms">
+                <div class="share-platform whatsapp">
+                    <i class="fab fa-whatsapp"></i>
+                    <span>WhatsApp</span>
+                </div>
+                <div class="share-platform telegram">
+                    <i class="fab fa-telegram"></i>
+                    <span>Telegram</span>
+                </div>
+                <div class="share-platform copy">
+                    <i class="fas fa-copy"></i>
+                    <span>Salin</span>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Gunakan Firebase SDK versi terbaru yang kompatibel -->
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"></script>
+    
     <script>
-        // Konfigurasi Firebase - menggunakan kredensial yang Anda berikan
+    document.addEventListener('DOMContentLoaded', () => {
+        // Inisialisasi Firebase
         const firebaseConfig = {
-            apiKey: "AIzaSyBSvC7olbY3n-Q-h-uAZyk67D0sidAlKjo",
-            authDomain: "ramzz-ai.firebaseapp.com",
-            projectId: "ramzz-ai",
-            storageBucket: "ramzz-ai.firebasestorage.app",
-            messagingSenderId: "1059583078636",
-            appId: "1:1059583078636:web:16560da5cf08926dd5f5c9",
-            measurementId: "EBRDWFL7R9"
+            apiKey: "AIzaSyDZNarIzyQnzpZsMzWO极狐ZOPFsFpOBnaQUok",
+            authDomain: "ramzzassisten.firebaseapp.com",
+            projectId: "ramzzassisten",
+            storageBucket: "ramzzassisten.firebasestorage.app",
+            messagingSenderId: "314860528268",
+            appId: "1:314860528268:web:027f52c302f55b5f4911a9",
+            measurementId: "G-NG97KG4SFR"
+        };
+        
+        firebase.initializeApp(firebaseConfig);
+        const auth = firebase.auth();
+        const db = firebase.firestore();
+        
+        // --- KONFIGURASI API ---
+        const API_KEY = "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";
+        const API_URL = "https://api.groq.com/openai/v1/chat/completions";
+        const DEFAULT_MODEL = "deepseek-r1-distill-llama-70b";
+
+        // --- ELEMEN DOM ---
+        const chatForm = document.getElementById('chat-form');
+        const chatInput = document.getElementById('chat-input');
+        const chatMessages = document.getElementById('chat-messages');
+        const themeToggleButton = document.getElementById('theme-toggle-btn');
+        const newChatButton = document.getElementById('new-chat-btn');
+        const deleteChatButton = document.getElementById('delete-chat-btn');
+        const uploadButton = document.getElementById('upload-btn');
+        const fileUploadInput = document.getElementById('file-upload-input');
+        const fileInfoDiv = document.getElementById('file-info');
+        const profileBtn = document.getElementById('profile-btn');
+        const shareChatBtn = document.getElementById('share-chat-btn');
+        const shareModal = document.getElementById('share-modal');
+        const closeModal = document.getElementById('close-modal');
+        const copyShareLinkBtn = document.getElementById('copy-share-link');
+        const shareLinkInput = document.getElementById('share-link');
+        const whatsappShare = document.querySelector('.share-platform.whatsapp');
+        const telegramShare = document.querySelector('.share-platform.telegram');
+        const copyShare = document.querySelector('.share-platform.copy');
+
+        // --- STATE APLIKASI ---
+        let conversationHistory = [];
+        let attachedFile = null;
+        let lastSubmitAction = 'send';
+        let userId = null;
+        let isGuest = false;
+        let chatId = null;
+        let currentTypingIndicator = null;
+        let currentReasoningIndicator = null;
+
+        // --- FUNGSI UTAMA ---
+
+        /**
+         * Mengirim permintaan ke API AI dan menampilkan hasilnya.
+         */
+        const handleFormSubmit = async () => {
+            const userInput = chatInput.value.trim();
+            if (!userInput && !attachedFile) return;
+
+            // Nonaktifkan form selama pemrosesan
+            disableForm(true);
+
+            let prompt = userInput;
+            let reasoning = null;
+
+            // Tambahkan prefix berdasarkan aksi tombol
+            if (lastSubmitAction === 'think') {
+                prompt = `Pikirkan langkah demi langkah secara mendalam tentang: "${userInput}"`;
+                reasoning = "AI sedang melakukan penalaran...";
+            } else if (lastSubmitAction === 'search') {
+                prompt = `Cari di web dan rangkum informasi tentang: "${userInput}"`;
+                reasoning = "AI sedang mencari di web...";
+            }
+            
+            if (attachedFile) {
+                prompt += `\n\n[File terlampir: ${attachedFile.name}, Tipe: ${attachedFile.type}]`;
+            }
+
+            // Tambahkan pesan user ke UI dan history
+            addMessageToUI(userInput || `[File: ${attachedFile.name}]`, 'user');
+            conversationHistory.push({ role: 'user', content: prompt });
+            saveChatHistory();
+            
+            // Tampilkan pesan penalaran jika ada
+            if (reasoning) {
+                currentReasoningIndicator = addMessageToUI(reasoning, 'ai reasoning');
+            }
+
+            // Tampilkan indikator mengetik
+            currentTypingIndicator = addMessageToUI('AI sedang mengetik...', 'ai typing');
+            
+            // Reset input
+            chatInput.value = '';
+            attachedFile = null;
+            fileInfoDiv.textContent = '';
+
+            try {
+                // Siapkan data untuk API request
+                const requestData = {
+                    model: DEFAULT_MODEL,
+                    messages: conversationHistory,
+                    temperature: 0.7,
+                    max_tokens: 1024,
+                    stream: false
+                };
+
+                const response = await fetch(API_URL, {
+                    method: 'POST',
+                    headers: {
+                        'Authorization': `Bearer ${API_KEY}`,
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(requestData)
+                });
+
+                if (!response.ok) {
+                    const errorText = await response.text();
+                    throw new Error(`API Error: ${response.status} - ${errorText}`);
+                }
+
+                const data = await response.json();
+                
+                if (!data.choices || !data.choices[0] || !data.choices[0].message) {
+                    throw new Error('Format respons API tidak valid');
+                }
+
+                const aiResponse = data.choices[0].message.content;
+
+                // Hapus indikator
+                if (currentTypingIndicator) {
+                    currentTypingIndicator.remove();
+                    currentTypingIndicator = null;
+                }
+                
+                if (currentReasoningIndicator) {
+                    currentReasoningIndicator.innerHTML = `<strong>Penalaran Selesai:</strong> ${reasoning.replace('...', '')}`;
+                    currentReasoningIndicator = null;
+                }
+
+                // Tambahkan respons AI ke UI dan history
+                addMessageToUI(aiResponse, 'ai');
+                conversationHistory.push({ role: 'assistant', content: aiResponse });
+                saveChatHistory();
+
+            } catch (error) {
+                console.error("Error:", error);
+                
+                // Hapus indikator jika ada error
+                if (currentTypingIndicator) {
+                    currentTypingIndicator.remove();
+                    currentTypingIndicator = null;
+                }
+                
+                if (currentReasoningIndicator) {
+                    currentReasoningIndicator.remove();
+                    currentReasoningIndicator = null;
+                }
+                
+                // Tampilkan pesan error
+                addMessageToUI(`Maaf, terjadi kesalahan: ${error.message}`, 'ai');
+            } finally {
+                disableForm(false);
+            }
         };
 
-        // Inisialisasi Firebase
-        firebase.initializeApp(firebaseConfig);
+        /**
+         * Menambahkan pesan ke antarmuka chat.
+         */
+        function addMessageToUI(text, type) {
+            const messageElement = document.createElement('div');
+            messageElement.className = `message ${type}`;
 
-        // Elemen UI
-        const loginBtn = document.getElementById('google-login');
-        const logoutBtn = document.getElementById('logout-btn');
-        const statusDiv = document.getElementById('status');
-        const userInfoDiv = document.getElementById('user-info');
-        const userName = document.getElementById('user-name');
-        const userEmail = document.getElementById('user-email');
-        const userPhoto = document.getElementById('user-photo');
-        const loginSection = document.getElementById('login-section');
-        const loadingDiv = document.getElementById('loading');
-
-        // Login dengan Google
-        loginBtn.addEventListener('click', () => {
-            const provider = new firebase.auth.GoogleAuthProvider();
-            
-            // Tambahkan scope jika diperlukan
-            provider.addScope('profile');
-            provider.addScope('email');
-            
-            // Tampilkan loading
-            loadingDiv.style.display = 'block';
-            loginBtn.disabled = true;
-            
-            firebase.auth().signInWithPopup(provider)
-                .then((result) => {
-                    // Berhasil login
-                    console.log('Login berhasil', result.user);
-                    loadingDiv.style.display = 'none';
-                    loginBtn.disabled = false;
-                })
-                .catch((error) => {
-                    // Handle error
-                    console.error('Error login:', error);
-                    loadingDiv.style.display = 'none';
-                    loginBtn.disabled = false;
-                    
-                    // Tampilkan error yang lebih informatif
-                    if (error.code === 'auth/popup-blocked') {
-                        alert('Popup diblokir oleh browser. Izinkan popup untuk domain ini dan coba lagi.');
-                    } else if (error.code === 'auth/unauthorized-domain') {
-                        alert('Domain ini tidak diizinkan untuk login. Pastikan domain telah ditambahkan di Firebase Console.');
-                    } else {
-                        alert('Login gagal: ' + error.message);
-                    }
-                });
-        });
-
-        // Logout
-        logoutBtn.addEventListener('click', () => {
-            firebase.auth().signOut()
-                .then(() => {
-                    console.log('Logout berhasil');
-                })
-                .catch((error) => {
-                    console.error('Error logout:', error);
-                    alert('Logout gagal: ' + error.message);
-                });
-        });
-
-        // Memantau status autentikasi
-        firebase.auth().onAuthStateChanged((user) => {
-            if (user) {
-                // User berhasil login
-                statusDiv.textContent = 'Anda telah login dengan Google';
-                statusDiv.className = 'status connected';
-                
-                // Tampilkan info user
-                userName.textContent = user.displayName;
-                userEmail.textContent = user.email;
-                userPhoto.src = user.photoURL;
-                
-                // Tampilkan user info dan sembunyikan tombol login
-                userInfoDiv.classList.remove('hidden');
-                loginSection.classList.add('hidden');
+            if (type === 'ai' && text !== 'AI sedang mengetik...') {
+                // Gunakan marked.js untuk merender Markdown dengan aman
+                try {
+                    messageElement.innerHTML = marked.parse(text);
+                    addCopyButtonsToCodeBlocks(messageElement);
+                } catch (error) {
+                    console.error('Error parsing markdown:', error);
+                    messageElement.textContent = text;
+                }
             } else {
-                // User logout
-                statusDiv.textContent = 'Anda belum login';
-                statusDiv.className = 'status disconnected';
+                // Untuk user, typing, dan reasoning, gunakan textContent untuk keamanan
+                messageElement.textContent = text;
+            }
+            
+            chatMessages.appendChild(messageElement);
+            chatMessages.scrollTop = chatMessages.scrollHeight;
+            return messageElement;
+        }
+        
+        /**
+         * Menambahkan tombol salin ke semua blok kode.
+         */
+        function addCopyButtonsToCodeBlocks(element) {
+            const codeBlocks = element.querySelectorAll('pre');
+            codeBlocks.forEach(pre => {
+                const code = pre.querySelector('code');
+                if (code) {
+                    const copyButton = document.createElement('button');
+                    copyButton.className = 'copy-btn';
+                    copyButton.textContent = 'Salin';
+                    copyButton.onclick = () => {
+                        navigator.clipboard.writeText(code.textContent).then(() => {
+                            copyButton.textContent = 'Disalin!';
+                            setTimeout(() => {
+                                copyButton.textContent = 'Salin';
+                            }, 2000);
+                        }).catch(err => {
+                            console.error('Gagal menyalin teks:', err);
+                            copyButton.textContent = 'Gagal';
+                        });
+                    };
+                    pre.appendChild(copyButton);
+                }
+            });
+        }
+        
+        /**
+         * Mengaktifkan atau menonaktifkan form input.
+         */
+        function disableForm(disabled) {
+            chatInput.disabled = disabled;
+            document.querySelectorAll('.chat-input-form button').forEach(button => {
+                button.disabled = disabled;
+            });
+        }
+
+        // --- MANAJEMEN STATE & UTILITAS ---
+
+        /**
+         * Mengatur tema (terang/gelap).
+         */
+        function toggleTheme() {
+            const body = document.body;
+            const icon = themeToggleButton.querySelector('i');
+            body.classList.toggle('light-theme');
+            
+            if (body.classList.contains('light-theme')) {
+                icon.className = 'fas fa-moon';
+                localStorage.setItem('chatTheme', 'light');
+            } else {
+                icon.className = 'fas fa-sun';
+                localStorage.setItem('chatTheme', 'dark');
+            }
+        }
+
+        /**
+         * Memuat tema dari localStorage.
+         */
+        function loadTheme() {
+            const savedTheme = localStorage.getItem('chatTheme');
+            if (savedTheme === 'light') {
+                document.body.classList.add('light-theme');
+                themeToggleButton.querySelector('i').className = 'fas fa-moon';
+            }
+        }
+
+        /**
+         * Menyimpan riwayat chat ke Firebase Firestore.
+         */
+        function saveChatHistory() {
+            if (isGuest) return;
+            
+            if (!userId) {
+                console.error("User ID tidak tersedia");
+                return;
+            }
+            
+            if (!chatId) {
+                chatId = Date.now().toString();
+                localStorage.setItem('chatId', chatId);
+            }
+            
+            const chatRef = db.collection('users').doc(userId).collection('chats').doc(chatId);
+            chatRef.set({
+                title: conversationHistory.length > 0 ? 
+                    conversationHistory[0].content.substring(0, 30) + '...' : 'Chat Baru',
+                messages: conversationHistory,
+                timestamp: firebase.firestore.FieldValue.serverTimestamp()
+            }).catch(error => {
+                console.error("Error menyimpan ke Firestore:", error);
+            });
+        }
+
+        /**
+         * Memuat riwayat chat dari Firebase Firestore.
+         */
+        function loadChatHistory() {
+            if (isGuest) {
+                // Mode tamu - gunakan localStorage
+                const savedHistory = localStorage.getItem('chatHistory');
+                if (savedHistory) {
+                    try {
+                        conversationHistory = JSON.parse(savedHistory);
+                        chatMessages.innerHTML = '';
+                        conversationHistory.forEach(message => {
+                            if (message.role !== 'system') {
+                                addMessageToUI(message.content, message.role === 'user' ? 'user' : 'ai');
+                            }
+                        });
+                    } catch (error) {
+                        console.error('Error parsing saved history:', error);
+                        initNewChat();
+                    }
+                } else {
+                    initNewChat();
+                }
+                return;
+            }
+            
+            if (!userId) {
+                console.error("User ID tidak tersedia");
+                return;
+            }
+            
+            chatId = localStorage.getItem('chatId');
+            
+            // Cek jika sedang mode berbagi chat
+            const urlParams = new URLSearchParams(window.location.search);
+            const sharedUserId = urlParams.get('share');
+            
+            if (sharedUserId) {
+                // Mode berbagi - muat chat dari user lain
+                const sharedChatRef = db.collection('users').doc(sharedUserId).collection('chats');
                 
-                // Sembunyikan user info dan tampilkan tombol login
-                userInfoDiv.classList.add('hidden');
-                loginSection.classList.remove('hidden');
+                sharedChatRef.orderBy('timestamp', 'desc').limit(1).get()
+                .then((querySnapshot) => {
+                    if (!querySnapshot.empty) {
+                        const latestChat = querySnapshot.docs[0];
+                        const chatData = latestChat.data();
+                        
+                        chatMessages.innerHTML = '';
+                        
+                        if (chatData.messages) {
+                            chatData.messages.forEach(message => {
+                                if (message.role !== 'system') {
+                                    addMessageToUI(message.content, message.role === 'user' ? 'user' : 'ai');
+                                }
+                            });
+                        }
+                    }
+                }).catch(error => {
+                    console.error("Error loading shared chat:", error);
+                    initNewChat();
+                });
+                return;
+            }
+            
+            // Muat chat dari user saat ini
+            const chatRef = db.collection('users').doc(userId).collection('chats');
+            
+            chatRef.orderBy('timestamp', 'desc').limit(1).get()
+            .then((querySnapshot) => {
+                if (!querySnapshot.empty) {
+                    const latestChat = querySnapshot.docs[0];
+                    const chatData = latestChat.data();
+                    chatId = latestChat.id;
+                    localStorage.setItem('chatId', chatId);
+                    conversationHistory = chatData.messages || [];
+                    chatMessages.innerHTML = '';
+                    
+                    conversationHistory.forEach(message => {
+                        if (message.role !== 'system') {
+                            addMessageToUI(message.content, message.role === 'user' ? 'user' : 'ai');
+                        }
+                    });
+                } else {
+                    initNewChat();
+                }
+            }).catch(error => {
+                console.error("Error memuat dari Firestore:", error);
+                initNewChat();
+            });
+        }
+
+        /**
+         * Inisialisasi chat baru.
+         */
+        function initNewChat() {
+            conversationHistory = [{
+                role: 'system',
+                content: 'Anda adalah asisten yang membantu bernama Ramzz. Gunakan Markdown untuk pemformatan, terutama untuk blok kode.'
+            }];
+            chatMessages.innerHTML = '';
+            addMessageToUI('Halo! Saya Ramzz. Apa yang bisa saya bantu hari ini?', 'ai');
+        }
+
+        /**
+         * Mereset chat ke kondisi awal.
+         */
+        function resetChat() {
+            if (confirm('Apakah Anda yakin ingin memulai chat baru? Riwayat saat ini akan dihapus.')) {
+                conversationHistory = [];
+                localStorage.removeItem('chatHistory');
+                localStorage.removeItem('chatId');
+                chatId = null;
+                
+                if (!isGuest && userId) {
+                    chatId = Date.now().toString();
+                    localStorage.setItem('chatId', chatId);
+                }
+                
+                chatMessages.innerHTML = '';
+                initNewChat();
+            }
+        }
+
+        /**
+         * Menghapus riwayat chat secara permanen.
+         */
+        function deleteChat() {
+            if (confirm('Apakah Anda yakin ingin MENGHAPUS SEMUA riwayat chat? Tindakan ini tidak dapat diurungkan.')) {
+                if (!isGuest && userId) {
+                    db.collection('users').doc(userId).collection('chats').get()
+                        .then((querySnapshot) => {
+                            const batch = db.batch();
+                            querySnapshot.forEach((doc) => {
+                                batch.delete(doc.ref);
+                            });
+                            return batch.commit();
+                        })
+                        .then(() => {
+                            localStorage.removeItem('chatId');
+                            resetChat();
+                        })
+                        .catch(error => {
+                            console.error("Error menghapus chat:", error);
+                            alert("Terjadi kesalahan saat menghapus chat. Silakan coba lagi.");
+                        });
+                } else {
+                    localStorage.removeItem('chatHistory');
+                    localStorage.removeItem('chatId');
+                    reset极狐Chat();
+                }
+            }
+        }
+
+        /**
+         * Tampilkan modal berbagi chat.
+         */
+        function showShareModal() {
+            if (isGuest) {
+                alert("Anda harus masuk untuk menggunakan fitur berbagi chat.");
+                return;
+            }
+            
+            if (!userId) {
+                alert("Terjadi kesalahan. Silakan coba lagi nanti.");
+                return;
+            }
+            
+            const shareLink = `${window.location.origin}${window.location.pathname}?share=${userId}`;
+            shareLinkInput.value = shareLink;
+            shareModal.style.display = 'flex';
+        }
+
+        /**
+         * Salin tautan berbagi ke clipboard.
+         */
+        function copyShareLink() {
+            navigator.clipboard.writeText(shareLinkInput.value)
+                .then(() => {
+                    copyShareLinkBtn.textContent = 'Disalin!';
+                    setTimeout(() => {
+                        copyShareLinkBtn.textContent = 'Salin';
+                    }, 2000);
+                })
+                .catch(err => {
+                    console.error('Gagal menyalin tautan:', err);
+                    copyShareLinkBtn.textContent = 'Gagal';
+                    setTimeout(() => {
+                        copyShareLinkBtn.textContent = 'Salin';
+                    }, 2000);
+                });
+        }
+
+        /**
+         * Bagikan ke WhatsApp.
+         */
+        function shareToWhatsApp() {
+            const message = `Lihat chat AI saya: ${shareLinkInput.value}`;
+            const whatsappUrl = `https://wa.me/?text=${encodeURIComponent(message)}`;
+            window.open(whatsappUrl, '_blank');
+        }
+
+        /**
+         * Bagikan ke Telegram.
+         */
+        function shareToTelegram() {
+            const message = `Lihat chat AI saya: ${shareLinkInput.value}`;
+            const telegramUrl = `https://t.me/share/url?url=${encodeURIComponent(shareLinkInput.value)}&text=${encodeURIComponent(message)}`;
+            window.open(telegramUrl, '_blank');
+        }
+
+        // --- EVENT LISTENERS ---
+        chatForm.addEventListener('submit', (e) => {
+            e.preventDefault();
+            lastSubmitAction = e.submitter.dataset.action || 'send';
+            handleFormSubmit();
+        });
+
+        themeToggleButton.addEventListener('click', toggleTheme);
+        newChatButton.addEventListener('click', resetChat);
+        deleteChatButton.addEventListener('click', deleteChat);
+        
+        profileBtn.addEventListener('click', () => {
+            window.location.href = 'profil.html';
+        });
+        
+        shareChatBtn.addEventListener('click', showShareModal);
+        closeModal.addEventListener('click', () => {
+            shareModal.style.display = 'none';
+        });
+        
+        copyShareLinkBtn.addEventListener('click', copyShareLink);
+        whatsappShare.addEventListener('click', shareToWhatsApp);
+        telegramShare.addEventListener('click', shareToTelegram);
+        copyShare.addEventListener('click', copyShareLink);
+
+        uploadButton.addEventListener('click', () => {
+            fileUploadInput.click();
+        });
+        
+        fileUploadInput.addEventListener('change', (e) => {
+            const file = e.target.files[0];
+            if (file) {
+                attachedFile = file;
+                fileInfoDiv.textContent = `File: ${file.name}`;
             }
         });
+
+        // --- INISIALISASI APLIKASI ---
+        isGuest = localStorage.getItem('guestMode') === 'true';
+        
+        auth.onAuthStateChanged((user) => {
+            if (user) {
+                userId = user.uid;
+                loadChatHistory();
+            } else {
+                if (!isGuest) {
+                    window.location.href = 'login.html';
+                } else {
+                    loadChatHistory();
+                }
+            }
+        });
+        
+        loadTheme();
+        disableForm(false);
+        chatInput.focus();
+        
+        // Tutup modal saat klik di luar
+        shareModal.addEventListener('click', (e) => {
+            if (e.target === shareModal) {
+                shareModal.style.display = 'none';
+            }
+        });
+
+        // Handle sebelum unload
+        window.addEventListener('beforeunload', () => {
+            if (isGuest) {
+                localStorage.setItem('chatHistory', JSON.stringify(conversationHistory));
+            }
+        });
+    });
     </script>
 </body>
 </html>
